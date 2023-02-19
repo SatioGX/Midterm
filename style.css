@@ -1,0 +1,26 @@
+.container{
+    display: grid;
+    grid-template-columns: 33% 33% 33%;
+    gap: 20px;
+}
+
+.card{
+    /* border: 1px solid black;
+    height: 100px;
+    background-color: bisque;
+    border-radius: 20px;
+    box-shadow: gray 0px 5px 15px;
+
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 5px;
+
+    padding: 10px */
+}
+
+.poster_path{
+    height: 60px;
+    width: 60px;
+    /* border-radius: 50%; */
+}
