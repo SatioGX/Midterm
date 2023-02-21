@@ -1,165 +1,151 @@
-// // let APIkey = e702d29de354fcbcbec9e4dcf9801296;
+let APIkey = 'e702d29de354fcbcbec9e4dcf9801296';
 
-
-
+//api for the trending list
 async function fetchMeUserInfo() {
-    try {
-      const response = await fetch(`https://api.themoviedb.org/3/trending/all/day?api_key=e702d29de354fcbcbec9e4dcf9801296`);
-      const dataWithJSON = await response.json();
-      const finalOutputArray = dataWithJSON.results;
-  
-      createUI(finalOutputArray);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
+  try {
+    const response = await fetch(`https://api.themoviedb.org/3/trending/all/day?api_key=${APIkey}`);
+    const dataWithJSON = await response.json();
+    const finalOutputArray = dataWithJSON.results;
+
+    const genres = await fetchGenres();
+
+    createUI(finalOutputArray, genres);
+  } catch (error) {
+    console.error('Error fetching data:', error);
   }
-
-
-function createUI(finalOutputArray) {
-
-
-    let container = document.querySelector('#maincontainer');
-
-//     const genres = [
-//         // 20230218191420
-// // https://api.themoviedb.org/3/genre/movie/list?api_key=e702d29de354fcbcbec9e4dcf9801296
-
-// {
-//     "genres": [
-//       {
-//         "id": 28,
-//         "name": "Action"
-//       },
-//       {
-//         "id": 12,
-//         "name": "Adventure"
-//       },
-//       {
-//         "id": 16,
-//         "name": "Animation"
-//       },
-//       {
-//         "id": 35,
-//         "name": "Comedy"
-//       },
-//       {
-//         "id": 80,
-//         "name": "Crime"
-//       },
-//       {
-//         "id": 99,
-//         "name": "Documentary"
-//       },
-//       {
-//         "id": 18,
-//         "name": "Drama"
-//       },
-//       {
-//         "id": 10751,
-//         "name": "Family"
-//       },
-//       {
-//         "id": 14,
-//         "name": "Fantasy"
-//       },
-//       {
-//         "id": 36,
-//         "name": "History"
-//       },
-//       {
-//         "id": 27,
-//         "name": "Horror"
-//       },
-//       {
-//         "id": 10402,
-//         "name": "Music"
-//       },
-//       {
-//         "id": 9648,
-//         "name": "Mystery"
-//       },
-//       {
-//         "id": 10749,
-//         "name": "Romance"
-//       },
-//       {
-//         "id": 878,
-//         "name": "Science Fiction"
-//       },
-//       {
-//         "id": 10770,
-//         "name": "TV Movie"
-//       },
-//       {
-//         "id": 53,
-//         "name": "Thriller"
-//       },
-//       {
-//         "id": 10752,
-//         "name": "War"
-//       },
-//       {
-//         "id": 37,
-//         "name": "Western"
-//       }
-//     ]
-//   }
-//     ]
-
-    for (let i = 0 ; i < finalOutputArray.length; i++) {
-
-       // Main Parent Tag which will have a class called as Card
-        let cardElement = document.createElement("div");
-        cardElement.classList.add("card");
-
-        // image tag which will hold the user image
-        let img = document.createElement("img");
-        img.src = `https://image.tmdb.org/t/p/original${finalOutputArray[i].poster_path}`;
-        img.classList.add("poster_path");
-
-
-        cardElement.appendChild(img);
-
-
-
-        // Create a div element for Name and email (PARENT)
-        let contentInfo = document.createElement('div');
-
-        // Full name of the user
-        let fullName = document.createElement('p');
-        fullName.textContent = `${finalOutputArray[i].title}`;
-
-        contentInfo.appendChild(fullName);
-
-
-        // email of the user
-        let email = document.createElement('p');
-        email.textContent = finalOutputArray[i].release_date;
-
-        contentInfo.appendChild(email);
-
-        let overview = document.createElement('p');
-        overview.textContent = finalOutputArray[i].overview;
-
-        contentInfo.appendChild(overview);
-
-
-        let genre_ids = document.createElement('p');
-        genre_ids.textContent = finalOutputArray[i].genre_ids;
-
-        contentInfo.appendChild(genre_ids);
-        
-
-        
-
-        cardElement.appendChild(contentInfo);
-
-        // final container containing all the card elements we created above
-        container.appendChild(cardElement);
-        console.log(finalOutputArray[i].id);
-    }
-
 }
 
+//api for the genre list
+async function fetchGenres() {
+  try {
+    const response = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${APIkey}`);
+    const dataWithJSON = await response.json();
+    const genres = {};
+
+    dataWithJSON.genres.forEach(genre => {
+      genres[genre.id] = genre.name;
+    });
+
+    return genres;
+  } catch (error) {
+    console.error('Error fetching genres:', error);
+  }
+}
+
+//function to display the search movie
+function searchedMovie(finalOutputArray, genres) {
+  let container = document.querySelector('#maincontainer');
+  container.innerHTML = '';
+
+  for (let i = 0; i < finalOutputArray.length; i++) {
+    let cardElement = document.createElement('div');
+    cardElement.classList.add('card');
+
+    let img = document.createElement('img');
+    img.src = `https://image.tmdb.org/t/p/original${finalOutputArray[i].poster_path}`;
+    img.classList.add('poster_path');
+    cardElement.appendChild(img);
+
+    let contentInfo = document.createElement('div');
+
+    let title = document.createElement('p');
+
+    let movieName = "";
+    if(finalOutputArray[i].title === null){
+      movieName = finalOutputArray[i].name;
+    }else{
+      movieName = finalOutputArray[i].title;
+    }
+    title.textContent = movieName;
+    contentInfo.appendChild(title);
+
+    let releaseDate = document.createElement('p');
+    releaseDate.textContent = finalOutputArray[i].release_date;
+    contentInfo.appendChild(releaseDate);
+
+    let overview = document.createElement('p');
+    overview.textContent = finalOutputArray[i].overview;
+    contentInfo.appendChild(overview);
+
+    let genreList = document.createElement('p');
+    let genreNames = finalOutputArray[i].genre_ids.map(genreId => genres[genreId]);
+    genreList.textContent = genreNames.join(', ');
+    contentInfo.appendChild(genreList);
+
+    cardElement.appendChild(contentInfo);
+
+    container.insertBefore(cardElement, container.firstChild);
+
+    console.log(finalOutputArray[i].id);
+  }
+}
+
+//Creating UI from the API
+function createUI(finalOutputArray, genres) {
+  let container = document.querySelector('#maincontainer');
+
+  for (let i = 0; i < finalOutputArray.length; i++) {
+    let cardElement = document.createElement('div');
+    cardElement.classList.add('card');
+
+    let img = document.createElement('img');
+    img.src = `https://image.tmdb.org/t/p/original${finalOutputArray[i].poster_path}`;
+    img.classList.add('poster_path');
+    cardElement.appendChild(img);
+
+    let contentInfo = document.createElement('div');
+
+    let title = document.createElement('p');
+
+    let movieName = "";
+    if(finalOutputArray[i].title === undefined){
+      movieName = finalOutputArray[i].name;
+    }else{
+      movieName = finalOutputArray[i].title;
+    }
+    title.textContent = movieName;
+    contentInfo.appendChild(title);
+
+    let releaseDate = document.createElement('p');
+    releaseDate.textContent = finalOutputArray[i].release_date;
+    contentInfo.appendChild(releaseDate);
+
+    let overview = document.createElement('p');
+    overview.textContent = finalOutputArray[i].overview;
+    contentInfo.appendChild(overview);
+
+    let genreList = document.createElement('p');
+    let genreNames = finalOutputArray[i].genre_ids.map(genreId => genres[genreId]);
+    genreList.textContent = genreNames.join(', ');
+    contentInfo.appendChild(genreList);
+
+    cardElement.appendChild(contentInfo);
+    container.appendChild(cardElement);
+    console.log(finalOutputArray[i].id);
+  }
+}
 
 fetchMeUserInfo();
+
+//API for searching movies
+async function search(movieTitle) {
+  try {
+    const response = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${APIkey}&query=${movieTitle}`);
+    const dataWithJSON = await response.json();
+    const finalOutputArray = dataWithJSON.results;
+
+    const genres = await fetchGenres();
+
+    searchedMovie(finalOutputArray, genres);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+//Event listener for the button and search bar
+const searchButton = document.getElementById('search');
+searchButton.addEventListener('click', () => {
+  const searchInput = document.getElementById('search-input');
+  const query = searchInput.value;
+  search(query);
+});
